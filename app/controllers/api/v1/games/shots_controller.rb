@@ -3,6 +3,7 @@ module Api
     module Games
       class ShotsController < ApiController
         before_action :validate_turn, only: :create
+        before_action :validate_winner, only: :create
 
         def create
           game = Game.find(params[:game_id])
@@ -12,7 +13,6 @@ module Api
           if turn_processor.message == "Invalid coordinates."
             render json: game, message: turn_processor.message, status: 400
           else
-            binding.pry
             render json: game, message: turn_processor.message
           end
         end
@@ -22,6 +22,12 @@ module Api
           render json: current_game,
             message: "Invalid move. It's your opponent's turn.",
             status: 400 and return false if current_turn != current_player
+        end
+
+        def validate_winner
+          render json: current_game,
+            message: "Invalid move. Game over.",
+            status: 400 and return false if current_game.winner != nil
         end
       end
     end
