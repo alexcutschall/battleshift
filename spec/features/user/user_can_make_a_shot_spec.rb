@@ -2,7 +2,7 @@ require 'rails_helper'
 
 context 'A user posting to /api/v1/games/:id/shots' do
   describe 'can place a shot' do
-    before(:all) do
+    before(:each) do
       @conn = Faraday.new(url: 'http://localhost:3000')
 
       response = @conn.post do |req|
@@ -57,7 +57,7 @@ context 'A user posting to /api/v1/games/:id/shots' do
       expect(data[:player_2_board][:rows][3][:data].first[:status]).to eq("Miss")
     end
 
-    scenario 'wrong coordinate' do
+    scenario 'and recieve an error for an invalid coordinate' do
       response = @conn.post do |req|
         req.url "/api/v1/games/#{@game_json[:id]}/shots"
         req.headers['Content-Type'] = 'application/json'
@@ -65,11 +65,11 @@ context 'A user posting to /api/v1/games/:id/shots' do
         req.body = { target: "D5" }.to_json
       end
 
-      expect(response).to be_success
+      expect(response.status).to be(400)
       data = JSON.parse(response.body, symbolize_names: true)
 
       expect(data[:message]).to include("Invalid coordinates")
-      expect(data[:player_2_board][:rows][3][:data].first[:status]).to eq("Empty")
+      expect(data[:player_2_board][:rows][3][:data].first[:status]).to eq("Not Attacked")
     end
   end
 end
