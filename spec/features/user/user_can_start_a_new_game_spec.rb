@@ -11,7 +11,7 @@ describe 'as player 1' do
         req.url '/api/v1/games'
         req.headers['Content-Type'] = 'application/json'
         req.headers['X-API-Key'] = user.api_key
-        req.body = { 'email': ENV['BATTLESHIFT_OPPONENT_EMAIL'] }.to_json
+        req.body = { 'opponent_email': ENV['BATTLESHIFT_OPPONENT_EMAIL'] }.to_json
       end
 
       expect(response).to be_success
@@ -25,10 +25,10 @@ describe 'as player 1' do
         req.url '/api/v1/games'
         req.headers['Content-Type'] = 'application/json'
         req.headers['X-API-Key'] = user.api_key
-        req.body = { 'email': user.email }.to_json
+        req.body = { 'opponent_email': user.email }.to_json
       end
 
-      expect(response.status).to eq(404)
+      expect(response.status).to eq(400)
     end
     it 'refuses if it is sent an invalid API Key' do
       user = create(:activated_user)
@@ -39,10 +39,10 @@ describe 'as player 1' do
         req.url '/api/v1/games'
         req.headers['Content-Type'] = 'application/json'
         req.headers['X-API-Key'] = "1"
-        req.body = { 'email': user.email }.to_json
+        req.body = { 'opponent_email': ENV['BATTLESHIT_OPPONENT_EMAIL'] }.to_json
       end
 
-      expect(response.status).to eq(404)
+      expect(response.status).to eq(400)
     end
   end
 end
