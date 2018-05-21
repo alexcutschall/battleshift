@@ -25,7 +25,7 @@ class Game < ApplicationRecord
     elsif self.player_2_ships == 0
       self.winner = self.player_1.email
     end
-    self.save!
+    self.save! unless self.winner.nil?
   end
 
   def sunken_ships
