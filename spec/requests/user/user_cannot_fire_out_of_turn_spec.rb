@@ -16,14 +16,25 @@ context 'A user posting to /api/v1/games/:id/shots out of turn' do
   }
 
   before(:each) do
-    ship_placer.run
+    ShipPlacer.new(
+      board: game.player_2_board,
+      ship: ship,
+      start_space: "A1",
+      end_space: "A2"
+    )
+    ShipPlacer.new(
+      board: game.player_1_board,
+      ship: ship,
+      start_space: "A1",
+      end_space: "A2"
+    )
     game.save!
   end
 
   scenario 'is denied' do
     headers = {
-      'Content-Type': 'application/json',
-      'X-API-Key': user2.api_key
+      'Content-Type' => 'application/json',
+      'X-API-Key' => user2.api_key
     }
 
     body = { target: 'A1' }.to_json
@@ -33,5 +44,18 @@ context 'A user posting to /api/v1/games/:id/shots out of turn' do
 
     data = JSON.parse(response.body, symbolize_names: true)
     expect(data[:message]).to include('Invalid move. It\'s your opponent\'s turn')
+
+    other_headers = headers.clone
+    other_headers['X-API-Key'] = user.api_key
+
+    post "/api/v1/games/#{game.id}/shots", headers: other_headers, params: body
+
+    data = JSON.parse(response.body, symbolize_names: true)
+    expect(data[:message]).to_not include('Invalid move. It\'s your opponent\'s turn')
+
+    post "/api/v1/games/#{game.id}/shots", headers: headers, params: body
+
+    data = JSON.parse(response.body, symbolize_names: true)
+    expect(data[:message]).to_not include('Invalid move. It\'s your opponent\'s turn')
   end
 end
