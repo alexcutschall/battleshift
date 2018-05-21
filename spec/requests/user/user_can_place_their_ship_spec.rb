@@ -24,5 +24,23 @@ describe 'as a user' do
       game.reload
       expect(game.player_1_board.board.flatten.first["A1"].contents).to be_a Ship
     end
+
+    it 'and their opponent can too' do
+      headers = {
+        'Content-Type' => 'application/json',
+        'X-API-Key' => user2.api_key
+      }
+      body = {
+        'ship_size' => 2,
+        'start_space' => 'A1',
+        'end_space' => 'A2'
+      }.to_json
+
+      post "/api/v1/games/#{game.id}/ships", headers: headers, params: body
+
+      expect(response).to be_successful
+      game.reload
+      expect(game.player_2_board.board.flatten.first["A1"].contents).to be_a Ship
+    end
   end
 end
