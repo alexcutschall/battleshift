@@ -6,6 +6,7 @@ require './app/services/values/space'
 describe ShipPlacer do
   let(:board) { Board.new(4) }
   let(:ship)  { double(length: 2) }
+  let(:ship3) { double(length: 3) }
   subject     { ShipPlacer.new(board: board, ship: ship, start_space: "A1", end_space: "A2") }
 
   it "exists when provided a board and ship" do
@@ -49,6 +50,16 @@ describe ShipPlacer do
     expect(b1.contents).to eq(ship)
     expect(neighbor_1.contents).to be_nil
     expect(neighbor_2.contents).to be_nil
+  end
+
+  it "can place a ship of a different length" do
+    a2 = board.locate_space("A2")
+    c2 = board.locate_space("C2")
+    placer = ShipPlacer.new(board: board, ship: ship3, start_space: "A2", end_space: "C2")
+    placer.run
+    expect(placer.message).to include('ship with a size of 3')
+    expect(a2.contents).to eq(ship3)
+    expect(c2.contents).to eq(ship3)
   end
 
   it "doesn't place the ship if it isn't within the same row or column" do
